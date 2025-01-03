@@ -37,5 +37,23 @@ export class HeroesService {
           )
         )
       );
-}
+    }
+
+    addHero( hero: Hero ): Observable<Hero>{
+      return this.httpClient.post<Hero>(`${ this.baseUrl }/heroes`, hero);
+    }
+
+    updateHero( hero: Hero ): Observable<Hero>{
+      if ( !hero.id ) throw Error ('Hero id is requires')
+      return this.httpClient.patch<Hero>(`${ this.baseUrl }/heroes/${ hero.id }`, hero);
+    }
+
+    deleteHeroById( id: string ): Observable<boolean> {
+
+      return this.httpClient.delete(`${ this.baseUrl }/heroes/${ id }`)
+        .pipe(
+          map( resp => true ),
+          catchError( err => of(false) ),
+        );
+    }
 }
