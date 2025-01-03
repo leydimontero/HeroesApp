@@ -15,7 +15,7 @@
       <mat-card-subtitle>{{ hero.alter_ego }}</mat-card-subtitle>
     </mat-card-header>
 
-    <img [src]="hero | heroImage" alt="">
+    <img [src]="hero | heroImage" [alt]="hero.superhero" mat-card-image />
   </mat-card>
 
 

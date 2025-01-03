@@ -1,13 +1,13 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { catchError, Observable, of } from 'rxjs';
+import { catchError, map, Observable, of } from 'rxjs';
 import { environments } from '../../../environments/environments';
 import { Hero } from '../interfaces/hero.interface';
 
 @Injectable({providedIn: 'root'})
 export class HeroesService {
 
-  private baseUrl = environments.baseUrl;
+  private baseUrl: string = environments.baseUrl;
 
   constructor(private httpClient: HttpClient) { }
 
@@ -24,4 +24,18 @@ export class HeroesService {
         catchError( error  => of(undefined) )
       );
     }
+
+    // getSuggestions( query: string ): Observable<Hero[]> {
+    //   return this.httpClient.get<Hero[]>(`${ this.baseUrl }/heroes?q=${ query }&_limit=6`);
+    // }
+
+    getSuggestions(query: string): Observable<Hero[]> {
+      return this.httpClient.get<Hero[]>(`${this.baseUrl}/heroes`).pipe(
+        map((heroes: Hero[]) =>
+          heroes.filter(hero =>
+            hero.superhero.toLowerCase().includes(query.toLowerCase())
+          )
+        )
+      );
+}
 }
