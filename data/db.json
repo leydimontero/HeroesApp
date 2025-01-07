@@ -2,8 +2,13 @@
   "users": [
     {
       "id": 1,
-      "usuario": "John Doe",
+      "name": "John Doe",
       "email": "john.due@gmail.com"
+    },
+    {
+      "id": 2,
+      "name": "Leydi Montero",
+      "email": "leydi.mon@gmail.com"
     }
   ],
   "heroes": [
