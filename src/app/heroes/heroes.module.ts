@@ -12,6 +12,7 @@ import { CardComponent } from './components/card/card.component';
 import {HeroImagePipe } from './pipes/hero-image.pipe';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { ComfirDialogComponent } from './components/comfir-dialog/comfir-dialog.component';
 
 
 @NgModule({
@@ -22,7 +23,8 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
     NewPageComponent,
     SearchPageComponent,
     CardComponent,
-    HeroImagePipe
+    HeroImagePipe,
+    ComfirDialogComponent
   ],
   imports: [
     CommonModule,

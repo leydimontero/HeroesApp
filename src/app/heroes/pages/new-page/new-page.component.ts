@@ -2,9 +2,15 @@ import { Component, OnInit } from '@angular/core';
 import {FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialog } from '@angular/material/dialog';
+
 import { Hero, Publisher } from '../../interfaces/hero.interface';
 import { HeroesService } from '../../services/heroes.service';
-import { switchMap } from 'rxjs';
+import { filter, switchMap } from 'rxjs';
+
+import { ComfirDialogComponent } from '../../components/comfir-dialog/comfir-dialog.component';
+
 
 
 @Component({
@@ -32,14 +38,15 @@ export class NewPageComponent implements OnInit {
   constructor(
     private heroesService: HeroesService,
     private activedRouter: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private snackbar: MatSnackBar,
+    private dialog: MatDialog
    ){}
 
   ngOnInit(): void {
 
-    // Verifica si la URL es la de creación de un nuevo héroe
   if (this.router.url.includes('new-hero')) {
-    // Inicializa el formulario para un nuevo héroe
+
     this.heroForm.reset({
       superhero: '',
       alter_ego: '',
@@ -48,10 +55,9 @@ export class NewPageComponent implements OnInit {
       publisher: null,
       alt_img: ''
     });
-    return; // Salir de la función
+    return;
   }
 
-  // Lógica para editar un héroe existente
   this.activedRouter.params
     .pipe(
       switchMap(({ id }) => this.heroesService.getHeroById(id)),
@@ -60,25 +66,12 @@ export class NewPageComponent implements OnInit {
       if (!hero) {
         console.error('Héroe no encontrado, redirigiendo...');
         this.router.navigateByUrl('/');
-        return; // Asegúrate de que haya un return aquí
+        return;
       }
       this.heroForm.reset(hero);
-      return; // Agrega un return aquí también (opcional)
+      return;
     });
-    // if ( this.router.url.includes('edit')) return;
 
-    // this.activedRouter.params
-    // .pipe(
-    //   switchMap( ({ id }) => this.heroesService.getHeroById( id )),
-    // ).subscribe( hero => {
-
-    //   if ( !hero ) {
-    //     console.error('Héroe no encontrado, redirigiendo...');
-    //     return this.router.navigateByUrl('/');
-    //   }
-    //   this.heroForm.reset( hero );
-    //   return;
-    // })
   }
 
   get currentHero(): Hero {
@@ -92,16 +85,43 @@ export class NewPageComponent implements OnInit {
     if ( this.currentHero.id ) {
       this.heroesService.updateHero( this.currentHero )
       .subscribe( hero => {
-        //.TODO:.mostrar.snackbar
+        this.router.navigate( ['/heroes/edit', hero.id ]);
+        this.showSnackbar(`${ hero.superhero } Udpated!`);
       });
 
       return;
     }
     this.heroesService.addHero( this.currentHero )
     .subscribe( hero => {
-      // TODO: mostrar snackbar, y navegar a /heroes/edit/hero.id
+      this.showSnackbar(`${ hero.superhero } Created!`)
+
     })
 
+  }
+
+  onDeletoHero() {
+    if ( !this.currentHero.id ) throw Error('Hero id is required');
+
+    const dialogRef = this.dialog.open( ComfirDialogComponent, {
+      data: this.heroForm.value
+    });
+
+     dialogRef.afterClosed()
+     .pipe(
+      filter( (result:boolean) => result ),
+      switchMap( () => this.heroesService.deleteHeroById( this.currentHero.id )),
+      filter( (wasDeleted:boolean) => wasDeleted ),
+     )
+     .subscribe(result => {
+      this.router.navigate(['/heroes'])
+     })
+
+    }
+
+  showSnackbar( message: string ): void {
+    this.snackbar.open( message, 'done', {
+      duration: 2500,
+    })
   }
 
 }
